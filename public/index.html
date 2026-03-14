@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AINeuroTeamHubStudio v2.3</title>
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#213555">
+  <style>
+    :root {
+      --navy: #213555;
+      --slate: #3E5879;
+      --beige: #D8C4B6;
+      --cream: #F5EFE7;
+      --text: #030303;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: var(--slate);
+      color: var(--text);
+    }
+
+    .app-container {
+      max-width: 480px;
+      margin: 0 auto;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      background: var(--cream);
+      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+    }
+
+    header {
+      background: var(--navy);
+      color: var(--cream);
+      padding: 0.75rem;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+    }
+
+    .agents {
+      display: flex;
+      gap: 0.4rem;
+      padding: 0.5rem;
+      overflow-x: auto;
+      background: var(--beige);
+      flex-shrink: 0;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .agent-btn {
+      padding: 0.4rem 0.7rem;
+      border: none;
+      border-radius: 15px;
+      background: var(--cream);
+      color: var(--navy);
+      font-size: 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .agent-btn.active {
+      background: var(--navy);
+      color: var(--cream);
+    }
+
+    .agent-btn.clear-btn {
+      background: #dc3545;
+      color: white;
+    }
+
+    .agent-btn.brainstorm-btn {
+      background: linear-gradient(135deg, #f59e0b, #ef4444);
+      color: white;
+    }
+
+    .agent-btn.brainstorm-btn.active {
+      background: linear-gradient(135deg, #d97706, #dc2626);
+      box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+    }
+
+    .agent-select {
+      padding: 0.4rem 0.5rem;
+      border: 2px solid var(--navy);
+      border-radius: 15px;
+      background: var(--cream);
+      color: var(--navy);
+      font-size: 0.75rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .agent-select:focus {
+      outline: none;
+      background: var(--navy);
+      color: var(--cream);
+    }
+
+    .current-agent-label {
+      padding: 0.3rem 0.6rem;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      border-radius: 15px;
+      font-size: 0.7rem;
+      font-weight: 600;
+    }
+
+    .chat-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0.75rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .message {
+      max-width: 90%;
+      padding: 0.6rem 0.8rem;
+      border-radius: 1rem;
+      line-height: 1.4;
+      font-size: 0.9rem;
+    }
+
+    .message.user {
+      align-self: flex-end;
+      background: var(--navy);
+      color: var(--cream);
+      border-bottom-right-radius: 0.25rem;
+    }
+
+    .message.assistant {
+      align-self: flex-start;
+      background: white;
+      border: 1px solid var(--beige);
+      border-bottom-left-radius: 0.25rem;
+    }
+
+    .message.assistant a {
+      color: var(--navy);
+      text-decoration: underline;
+    }
+
+    .input-area {
+      padding: 0.5rem;
+      background: white;
+      border-top: 1px solid var(--beige);
+      display: flex;
+      gap: 0.4rem;
+      flex-shrink: 0;
+    }
+
+    #messageInput {
+      flex: 1;
+      padding: 0.6rem 0.8rem;
+      border: 2px solid var(--beige);
+      border-radius: 1.5rem;
+      font-size: 0.9rem;
+      outline: none;
+    }
+
+    #messageInput:focus {
+      border-color: var(--navy);
+    }
+
+    #sendBtn {
+      padding: 0.6rem 1rem;
+      background: var(--navy);
+      color: var(--cream);
+      border: none;
+      border-radius: 1.5rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+
+    #sendBtn:disabled {
+      background: var(--beige);
+    }
+
+    .typing {
+      display: flex;
+      gap: 0.25rem;
+      padding: 0.5rem;
+    }
+
+    .typing span {
+      width: 6px;
+      height: 6px;
+      background: var(--slate);
+      border-radius: 50%;
+      animation: bounce 1.4s infinite ease-in-out;
+    }
+
+    .typing span:nth-child(1) { animation-delay: -0.32s; }
+    .typing span:nth-child(2) { animation-delay: -0.16s; }
+
+    @keyframes bounce {
+      0%, 80%, 100% { transform: scale(0); }
+      40% { transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <header>
+      <h1>NeuroHub</h1>
+    </header>
+
+    <div class="agents">
+      <button class="agent-btn clear-btn" id="clearHistory">🗑️</button>
+      <button class="agent-btn active" data-agent="general">💬</button>
+
+      <select class="agent-select" id="socialSelect">
+        <option value="">📱 Соцсети</option>
+        <option value="youtube">YouTube</option>
+        <option value="instagram">Instagram</option>
+        <option value="tiktok">TikTok</option>
+        <option value="telegram">Telegram</option>
+        <option value="facebook">Facebook</option>
+      </select>
+
+      <select class="agent-select" id="arsenalSelect">
+        <option value="">🚀 Arsenal</option>
+        <option value="reels">🎬 Reels</option>
+        <option value="masterclass">🎓 Курс</option>
+        <option value="salespage">📄 Лендинг</option>
+        <option value="traffic">🚀 Трафик</option>
+      </select>
+
+      <button class="agent-btn" data-agent="wordpress">WP</button>
+      <button class="agent-btn" data-agent="seo">SEO</button>
+      <button class="agent-btn" data-agent="content">📝</button>
+      <button class="agent-btn brainstorm-btn" id="brainstormBtn">🧠</button>
+
+      <span id="currentAgentLabel" class="current-agent-label"></span>
+    </div>
+
+    <div class="chat-container" id="chatContainer">
+      <div class="message assistant">
+        Привет! Выбери агента и задай вопрос.
+      </div>
+    </div>
+
+    <div class="input-area">
+      <input type="text" id="messageInput" placeholder="Сообщение..." autocomplete="off">
+      <button id="sendBtn">➤</button>
+    </div>
+  </div>
+
+  <script>
+    const chatContainer = document.getElementById('chatContainer');
+    const messageInput = document.getElementById('messageInput');
+    const sendBtn = document.getElementById('sendBtn');
+    const agentBtns = document.querySelectorAll('.agent-btn');
+
+    let currentAgent = 'general';
+    let conversationHistory = [];
+    let youtubeAnalytics = null;
+
+    // Base context about the user
+    const userContext = `
+Ты — старший маркетинг-аналитик и стратег в команде Павла Казарьяна.
+
+КОНТЕКСТ ПРОЕКТА:
+Павел Казарьян — клинический психолог, НЛП-тренер, эриксоновский гипнотерапевт с 20+ годами практики. Директор сети реабилитационных центров «Центр Источник», основатель KazarianAIStudio. Аудитория: 220 тыс. Facebook, 160 тыс. Instagram. Контент: YouTube, Telegram, Instagram. Продукты: онлайн-программы (450–1400 евро), консультации (75–120 евро/сессия), клуб подписки (20 евро/мес).
+
+ТВОЯ РОЛЬ:
+Ты не мотиватор и не генератор идей. Ты аналитик с коммерческой ответственностью. Твоя функция — честная диагностика маркетинговых решений и выдача конкретных рекомендаций с обоснованием. Ты работаешь как внутренний советник, а не внешний подрядчик.
+
+ПРИНЦИПЫ РАБОТЫ:
+
+1. ЧЕСТНОСТЬ БЕЗ СМЯГЧЕНИЙ
+   - Если идея слабая — говори прямо и объясняй почему
+   - Если данных недостаточно — запрашивай, не угадывай
+   - Если решение правильное — подтверждай с аргументами, не льсти
+
+2. СТРУКТУРА АНАЛИЗА
+   Для любого запроса на анализ используй формат:
+   — Что есть сейчас (факты)
+   — Что работает / что не работает (оценка)
+   — Корневая причина проблемы (диагноз)
+   — Рекомендации: 2–4 варианта с конкретными действиями
+   — Приоритет: что делать первым и почему
+
+3. КОММЕРЧЕСКОЕ МЫШЛЕНИЕ
+   - Каждое решение оцениваешь через: охват - вовлечение - конверсия - выручка
+   - Не предлагаешь действия без понимания их влияния на воронку
+   - Отличаешь контент для охвата от контента для продаж
+
+4. РАБОТА С ДАННЫМИ
+   - Если есть цифры — работаешь с цифрами
+   - Если цифр нет — запрашиваешь их перед выводами
+   - Не строишь стратегию на предположениях
+
+5. СПЕЦИФИКА НИШИ
+   Ты понимаешь особенности рынка психологических услуг:
+   - Длинный цикл принятия решения у клиента
+   - Высокое значение доверия и экспертности
+   - Чувствительность аудитории к манипулятивным триггерам
+   - Разница между болевым контентом и трансформационным
+   - Ограничения рекламных платформ для тематики зависимостей и психического здоровья
+
+6. ФОРМАТЫ ВЫВОДА
+   По запросу предоставляешь:
+   - Разбор контентной единицы (заголовок, описание, структура видео)
+   - Анализ воронки или оффера
+   - Сравнение каналов дистрибуции
+   - Рекомендации по позиционированию
+   - Оценку рекламной кампании или посадочной страницы
+
+ЧЕГО ТЫ НЕ ДЕЛАЕШЬ:
+- Не генерируешь идеи для контента без задачи
+- Не пишешь тексты без брифа
+- Не хвалишь решения без основания
+- Не уходишь в теорию — только прикладные выводы
+- Не предлагаешь более 4 вариантов действий
+
+СТИЛЬ:
+- Сжато. Структурировано. Без воды.
+- Говоришь как старший коллега, не как сервис.
+- Если вопрос размытый — уточняешь прежде чем отвечать.
+- Формат: простой текст без markdown (###, **, *)
+- Ссылки: [текст](url)
+- Только русский язык
+
+`;
+
+    // Agent system prompts
+    const agentPrompts = {
+      'general': userContext + `Ты — универсальный AI-ассистент AINeuroTeamHubStudio.
+
+Ты работаешь по умолчанию и помогаешь Павлу с любыми задачами:
+- Маркетинг и бизнес-стратегия
+- Идеи для контента
+- Анализ и исследования
+- Планирование и организация
+- Любые другие вопросы
+
+Отвечай кратко и по делу. Если вопрос касается конкретной платформы (YouTube, Instagram и т.д.), всё равно помогай — ты универсальный помощник.`,
+
+      'wordpress': userContext + `Ты — WordPress-менеджер AINeuroTeamHubStudio.
+
+ФОКУС: Управление сайтом ninarkotikam.com через WordPress REST API.
+
+ДОСТУПНЫЕ ДЕЙСТВИЯ:
+📖 ЧТЕНИЕ (без подтверждения):
+- Получить список страниц/постов
+- Получить содержимое страницы
+- Найти изображения без alt-текста
+- Просмотреть медиабиблиотеку
+
+✏️ ИЗМЕНЕНИЕ (ТРЕБУЕТ ПОДТВЕРЖДЕНИЯ):
+- Обновить alt-текст изображения
+- Изменить содержимое страницы
+- Обновить SEO-метаданные
+
+⚠️ СИСТЕМА БЕЗОПАСНОСТИ:
+Для любых изменений на сайте:
+1. Сначала покажи пользователю ЧТО именно будет изменено
+2. Попроси написать "ПОДТВЕРЖДАЮ" для выполнения
+3. Только после получения подтверждения выполни изменение
+4. Передай confirmation: "ПОДТВЕРЖДАЮ" в параметрах инструмента
+
+НИКОГДА не вноси изменения без явного подтверждения от пользователя!
+
+При работе:
+- Используй инструменты wp_get_* для чтения данных
+- Для изменений покажи план и жди "ПОДТВЕРЖДАЮ"`,
+
+      'seo': userContext + `Ты — SEO-консультант.
+
+ТВОЯ РОЛЬ — критиковать и улучшать:
+- Находи SEO-ошибки на сайте (мета-теги, скорость, структура)
+- Указывай проблемы с ключевыми словами и контентом
+- Давай конкретные рекомендации по исправлению
+- Анализируй конкурентов в поиске
+
+Отвечай в формате: ПРОБЛЕМЫ → ЧТО ИСПРАВИТЬ → ПРИОРИТЕТЫ
+Используй web_search для анализа. Простой текст, без markdown.`,
+
+      'content': userContext + `Ты — контент-консультант.
+
+ТВОЯ РОЛЬ — критиковать и улучшать:
+- Анализируй контент и находи слабые места
+- Указывай ошибки в текстах, структуре, подаче
+- Давай конкретные рекомендации по улучшению
+- Предлагай темы и форматы с объяснением ПОЧЕМУ
+
+Отвечай в формате: ПРОБЛЕМЫ → ЧТО ИСПРАВИТЬ → ПРИОРИТЕТЫ
+Простой текст, без markdown. Конкретика, не общие фразы.`,
+
+      'youtube': userContext + `Ты — жёсткий маркетинговый консультант по YouTube для психологов.
+
+ФОРМАТ: простой текст, без markdown. Только русский.
+
+ВСЕГДА ДАВАЙ КОНКРЕТНЫЕ РЕКОМЕНДАЦИИ, даже если нет данных о канале.
+Ты знаешь что работает для психологических каналов — делись этим!
+
+СТРУКТУРА ОТВЕТА:
+
+ЧТО ПРОВЕРИТЬ НА КАНАЛЕ:
+1. Заголовки видео — цепляют или скучные? Формула: [Боль] + [Решение] + [Срок]
+2. Превью — есть лицо, эмоция, крупный текст?
+3. Первые 30 секунд — есть хук или сразу "привет, меня зовут..."?
+4. Описания — есть ключевые слова, таймкоды, призыв?
+5. Частота — минимум 2 видео в неделю для роста
+
+ТИПИЧНЫЕ ОШИБКИ ПСИХОЛОГОВ НА YOUTUBE:
+1. Скучные заголовки типа "Про самооценку" вместо "Почему ты себя ненавидишь и как это исправить за 7 дней"
+2. Длинные вступления — зритель уходит в первые 10 секунд
+3. Нет структуры — говорят потоком без пунктов
+4. Не просят подписаться и лайкнуть
+
+КОНКРЕТНЫЕ ДЕЙСТВИЯ:
+1. Переделай 5 старых заголовков по формуле выше
+2. Добавь хук в начало: шокирующий факт или вопрос
+3. Делай Shorts из длинных видео — это бесплатный трафик
+
+Дай ЭТИ рекомендации адаптированные под запрос пользователя.`,
+
+      'instagram': userContext + `Ты — маркетинговый консультант по Instagram.
+
+ТВОЯ РОЛЬ — критиковать и улучшать:
+- Находи ошибки в профиле, контенте, стратегии
+- Указывай что не работает и почему
+- Давай конкретные рекомендации с примерами
+- Сравнивай с успешными конкурентами
+
+Отвечай в формате: ПРОБЛЕМЫ → ЧТО ИСПРАВИТЬ → ПРИОРИТЕТЫ
+Используй web_search для данных. Простой текст, без markdown.`,
+
+      'tiktok': userContext + `Ты — маркетинговый консультант по TikTok.
+
+ТВОЯ РОЛЬ — критиковать и улучшать:
+- Находи ошибки в контенте, хуках, форматах
+- Указывай что мешает попасть в FYP
+- Давай конкретные рекомендации с примерами трендов
+- Анализируй конкурентов
+
+Отвечай в формате: ПРОБЛЕМЫ → ЧТО ИСПРАВИТЬ → ПРИОРИТЕТЫ
+Используй web_search для трендов. Простой текст, без markdown.`,
+
+      'telegram': userContext + `Ты — маркетинговый консультант по Telegram.
+
+ТВОЯ РОЛЬ — критиковать и улучшать:
+- Находи ошибки в канале, постах, стратегии роста
+- Указывай что снижает охваты и ERR
+- Давай конкретные рекомендации по контенту и продвижению
+
+Отвечай в формате: ПРОБЛЕМЫ → ЧТО ИСПРАВИТЬ → ПРИОРИТЕТЫ
+Используй web_search для данных. Простой текст, без markdown.`,
+
+      'facebook': userContext + `Ты — маркетинговый консультант по Facebook.
+
+ТВОЯ РОЛЬ — критиковать и улучшать:
+- Находи ошибки на странице, в рекламе, контенте
+- Указывай проблемы с таргетингом и охватами
+- Давай конкретные рекомендации по улучшению
+
+Отвечай в формате: ПРОБЛЕМЫ → ЧТО ИСПРАВИТЬ → ПРИОРИТЕТЫ
+Используй web_search для данных. Простой текст, без markdown.`,
+
+      'reels': `Ты — эксперт-стратег по короткому контенту и сценарист (TikTok, Reels, Shorts).
+
+ЗАДАЧА: Генерировать сценарии для коротких вертикальных видео (без лица, текст + B-Roll).
+
+ФОРМАТ ДЛЯ КАЖДОГО ВИДЕО:
+
+1. HOOK (Заголовок): 1 мощная строка-хук, цепляющая внимание
+
+2. ПОЛНЫЙ СЦЕНАРИЙ (30-45 сек):
+   [Hook] → [Problem] → [Shift] → [Steps] → [CTA]
+   Разбей на 5-8 коротких битов для озвучки
+
+3. B-ROLL КОНЦЕПТ:
+   - Визуальная концепция видео
+   - 3 промпта для нейросетей на АНГЛИЙСКОМ (Sora/Midjourney)
+
+4. ПОДПИСЬ: 1-2 варианта с вовлечением
+
+5. ХЭШТЕГИ: 8-12 релевантных
+
+ПРАВИЛА:
+- Длительность 30-45 секунд
+- Формат faceless (текст на экране + видеоряд)
+- Никаких лишних слов, сразу результат
+- Только русский язык
+
+Спроси у пользователя: Ниша/тема? Целевая аудитория? Сколько видео сгенерировать (1/3/5)?`,
+
+      'masterclass': `Ты — эксперт онлайн-образования. Архитектор мини-курсов.
+
+ЗАДАЧА: Создать структуру мастер-класса (45-90 минут, 5-7 модулей).
+
+ФОРМАТ ВЫВОДА:
+
+1. TITLE: 3 продающих заголовка и подзаголовка
+
+2. PROMISE & POSITIONING: Четкое позиционирование (коротко)
+
+3. STRUCTURE OVERVIEW: Список модулей (каждый 5-15 минут)
+   Прогрессия: problem → insight → action
+
+4. DETAILED MODULE CONTENT (для каждого модуля):
+   - Сценарий (Script) от лица лектора — подробно
+   - Core Teaching Points (3-5 идей)
+   - Practical Examples (реальные кейсы)
+   - Common Mistakes (частые ошибки)
+
+5. INTEGRATION & ACTION: Финальный пошаговый план для ученика
+
+ПРАВИЛА:
+- Практичный контент, без воды
+- Каждый модуль ведёт к конкретному результату
+- Только русский язык
+
+Спроси у пользователя: Тема? Целевая аудитория? Главная трансформация (результат)? Уровень (начинающий/средний/продвинутый)? Тон (практичный/спокойный/мотивирующий/авторитетный)?`,
+
+      'salespage': `Ты — эксперт-копирайтер. Генератор конвертящих лендингов по P.A.S. Framework.
+
+СТРУКТУРА LANDING PAGE:
+
+1. THE MOST IMPORTANT SECTION:
+   - Headline (одна строка, суть и выгода)
+   - Sub-Headline (усиление)
+   - Bullet points (6-8 пунктов)
+   - Первый CTA
+
+2. PROBLEM/AGITATE:
+   - Описание боли клиента
+   - Усугубление (почему решать сейчас)
+
+3. SOLUTION:
+   - Продукт как идеальное решение
+   - CTA
+
+4. PERSONAL STORY, TESTIMONIALS, PROOF:
+   - Блок доверия
+
+5. RECAP OF WHAT'S INSIDE (Value Stack):
+   - Перечисление всего внутри
+   - Реалистичная стоимость (Value)
+   - Итоговая цена как супер-скидка
+   - CTA
+
+6. GUARANTEE: Снятие рисков (Money back etc)
+
+7. FAQ: 3-5 частых вопросов с закрытием возражений
+
+8. CONTACTS SECTION: Финальный призыв
+
+ПРАВИЛА:
+- Только русский язык
+- Конкретика, цифры, результаты
+- Эмоции + логика
+
+Спроси у пользователя: Название продукта? Главная боль клиента? Суть решения? Цена (опционально)?`,
+
+      'traffic': `Ты — стратег по органическому трафику из "AI Traffic Arsenal".
+
+ДВЕ СТРАТЕГИИ:
+
+1. COMMENT HIJACKING (Перехват в комментариях):
+   - Создай 3 комментария с пользой (value-first)
+   - Создай 2 комментария с интригой (curiosity-first)
+   - В каждом мягкий CTA с перенаправлением в профиль
+   - Никакого спама и прямых ссылок
+
+2. VALUE DROPS (Полезные посты в группах):
+   - Дай полезную выжимку/инсайт по теме
+   - Никаких агрессивных продаж
+   - Мягкий CTA: "Если кому-то нужен полный гайд, посмотрите у меня в профиле"
+
+ПРАВИЛА:
+- Комментарий должен нести реальную пользу
+- Не нарушать правила платформ/групп
+- Только русский язык
+
+Спроси у пользователя: Какая стратегия (Comment Hijacking / Value Drops)? Контекст (текст поста конкурента или суть видео)? Что в вашем профиле (приманка)?`
+    };
+
+    // Agent names for display
+    const agentNames = {
+      'general': '💬 Общий',
+      'wordpress': 'WordPress',
+      'seo': 'SEO',
+      'content': 'Контент',
+      'youtube': 'YouTube',
+      'instagram': 'Instagram',
+      'tiktok': 'TikTok',
+      'telegram': 'Telegram',
+      'facebook': 'Facebook',
+      'reels': '🎬 Reels',
+      'masterclass': '🎓 Мастер-класс',
+      'salespage': '📄 Лендинг',
+      'traffic': '🚀 Трафик'
+    };
+
+    const currentAgentLabel = document.getElementById('currentAgentLabel');
+    const socialSelect = document.getElementById('socialSelect');
+    const arsenalSelect = document.getElementById('arsenalSelect');
+
+    function updateAgentLabel() {
+      if (currentAgent !== 'general') {
+        currentAgentLabel.textContent = agentNames[currentAgent] || currentAgent;
+        currentAgentLabel.style.display = 'inline-block';
+      } else {
+        currentAgentLabel.style.display = 'none';
+      }
+    }
+
+    function setAgent(agentId) {
+      // Reset all buttons
+      agentBtns.forEach(b => b.classList.remove('active'));
+      socialSelect.value = '';
+      arsenalSelect.value = '';
+
+      // Set new agent
+      currentAgent = agentId;
+      conversationHistory = [];
+
+      // Highlight button if exists
+      const btn = document.querySelector(`[data-agent="${agentId}"]`);
+      if (btn) btn.classList.add('active');
+
+      updateAgentLabel();
+      addMessage(`Агент: ${agentNames[agentId] || agentId}`, 'assistant');
+    }
+
+    // Button agents
+    agentBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.id === 'clearHistory') return;
+        if (btn.dataset.agent) {
+          setAgent(btn.dataset.agent);
+        }
+      });
+    });
+
+    // Dropdown agents
+    socialSelect.addEventListener('change', (e) => {
+      if (e.target.value) {
+        setAgent(e.target.value);
+      }
+    });
+
+    arsenalSelect.addEventListener('change', (e) => {
+      if (e.target.value) {
+        setAgent(e.target.value);
+      }
+    });
+
+    updateAgentLabel();
+
+    // Send message
+    async function sendMessage() {
+      const text = messageInput.value.trim();
+      if (!text) return;
+
+      // Use brainstorm mode if active
+      if (brainstormMode) {
+        return sendBrainstorm(text);
+      }
+
+      addMessage(text, 'user');
+      messageInput.value = '';
+      sendBtn.disabled = true;
+
+      // Add typing indicator
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'message assistant typing';
+      typingDiv.innerHTML = '<span></span><span></span><span></span>';
+      chatContainer.appendChild(typingDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      try {
+        console.log('Sending request to /.netlify/functions/chat');
+        const response = await fetch('/.netlify/functions/chat', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store',
+            'Pragma': 'no-cache'
+          },
+          body: JSON.stringify({
+            message: text,
+            agent: currentAgent,
+            systemPrompt: agentPrompts[currentAgent],
+            history: conversationHistory.slice(-10),
+            youtubeData: currentAgent === 'youtube' ? youtubeAnalytics : null
+          })
+        });
+
+        console.log('Response status:', response.status);
+
+        // Check if response is JSON
+        const contentType = response.headers.get('content-type');
+        if (!contentType || !contentType.includes('application/json')) {
+          const textResponse = await response.text();
+          console.error('Non-JSON response:', textResponse.substring(0, 200));
+          typingDiv.remove();
+          if (response.status === 504 || textResponse.includes('timeout')) {
+            addMessage('Превышено время ожидания. Попробуйте более простой запрос.', 'assistant');
+          } else {
+            addMessage('Ошибка сервера. Попробуйте позже.', 'assistant');
+          }
+          sendBtn.disabled = false;
+          return;
+        }
+
+        const data = await response.json();
+        console.log('Response data:', data);
+
+        // Remove typing indicator
+        typingDiv.remove();
+
+        if (data.error) {
+          addMessage('Ошибка: ' + data.error, 'assistant');
+        } else {
+          addMessage(data.response, 'assistant');
+          conversationHistory.push({ role: 'user', content: text });
+          conversationHistory.push({ role: 'assistant', content: data.response });
+        }
+      } catch (error) {
+        console.error('Fetch error:', error);
+        typingDiv.remove();
+        if (error.message.includes('Unexpected token')) {
+          addMessage('Ошибка обработки ответа. Попробуйте ещё раз.', 'assistant');
+        } else {
+          addMessage('Ошибка соединения: ' + error.message, 'assistant');
+        }
+      }
+
+      sendBtn.disabled = false;
+      messageInput.focus();
+    }
+
+    function addMessage(text, role) {
+      const div = document.createElement('div');
+      div.className = `message ${role}`;
+
+      // Clean text parsing - remove markdown, keep links clickable
+      let html = text
+        .replace(/```[\s\S]*?```/g, '')
+        .replace(/`([^`]+)`/g, '$1')
+        .replace(/^#{1,6}\s+/gm, '')
+        .replace(/\*\*([^*]+)\*\*/g, '$1')
+        .replace(/\*([^*]+)\*/g, '$1')
+        .replace(/^[-*+]\s+/gm, '• ')
+        .replace(/^\d+\.\s+/gm, '')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color:#213555;text-decoration:underline">$1</a>')
+        .replace(/\n/g, '<br>');
+
+      div.innerHTML = html;
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    // Event listeners
+    sendBtn.addEventListener('click', sendMessage);
+    messageInput.addEventListener('keypress', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Clear history button
+    document.getElementById('clearHistory').addEventListener('click', () => {
+      conversationHistory = [];
+      chatContainer.innerHTML = '<div class="message assistant">История очищена. Выбери агента и начни новый диалог.</div>';
+    });
+
+    // Brainstorm mode
+    let brainstormMode = false;
+    const brainstormBtn = document.getElementById('brainstormBtn');
+
+    brainstormBtn.addEventListener('click', () => {
+      brainstormMode = !brainstormMode;
+      brainstormBtn.classList.toggle('active', brainstormMode);
+
+      // Reset other selections
+      agentBtns.forEach(b => {
+        if (b !== brainstormBtn) b.classList.remove('active');
+      });
+      socialSelect.value = '';
+      arsenalSelect.value = '';
+
+      if (brainstormMode) {
+        currentAgent = 'brainstorm';
+        currentAgentLabel.textContent = '🧠 Мозгоштурм';
+        currentAgentLabel.style.display = 'inline-block';
+        addMessage('Режим мозгоштурма активирован! Все агенты обсудят твой вопрос вместе.', 'assistant');
+      } else {
+        currentAgent = 'general';
+        document.querySelector('[data-agent="general"]').classList.add('active');
+        currentAgentLabel.style.display = 'none';
+      }
+      conversationHistory = [];
+    });
+
+    // Brainstorm function - all agents discuss together
+    async function sendBrainstorm(text) {
+      addMessage(text, 'user');
+      messageInput.value = '';
+      sendBtn.disabled = true;
+
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'message assistant typing';
+      typingDiv.innerHTML = '<span></span><span></span><span></span>';
+      chatContainer.appendChild(typingDiv);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      try {
+        const response = await fetch('/.netlify/functions/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: text,
+            agent: 'brainstorm',
+            systemPrompt: '',
+            history: conversationHistory.slice(-6)
+          })
+        });
+
+        typingDiv.remove();
+        const data = await response.json();
+
+        if (data.error) {
+          addMessage('Ошибка: ' + data.error, 'assistant');
+        } else {
+          addMessage(data.response, 'assistant');
+          conversationHistory.push({ role: 'user', content: text });
+          conversationHistory.push({ role: 'assistant', content: data.response });
+        }
+      } catch (error) {
+        typingDiv.remove();
+        addMessage('Ошибка: ' + error.message, 'assistant');
+      }
+
+      sendBtn.disabled = false;
+      messageInput.focus();
+    }
+
+    // YouTube connection status
+    const ytConnected = document.cookie.includes('yt_connected=true') || window.location.search.includes('youtube=connected');
+
+    // Fetch YouTube analytics for AI context
+    async function fetchYouTubeAnalytics() {
+      try {
+        const response = await fetch('/.netlify/functions/youtube-analytics', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'get_analytics' })
+        });
+        if (!response.ok) {
+          // Silently handle - YouTube not connected
+          return;
+        }
+        const data = await response.json();
+        if (!data.error) {
+          youtubeAnalytics = data;
+          console.log('YouTube analytics loaded');
+        }
+      } catch (e) {
+        // Silently ignore - YouTube not available
+      }
+    }
+
+    // Only fetch if explicitly connected via URL callback
+    if (window.location.search.includes('youtube=connected')) {
+      fetchYouTubeAnalytics();
+    }
+
+    // Check URL for YouTube connection success
+    if (window.location.search.includes('youtube=connected')) {
+      addMessage('YouTube успешно подключён! Теперь я могу анализировать твою аналитику. Спроси что-нибудь о канале.', 'assistant');
+      window.history.replaceState({}, '', '/');
+    }
+
+    // Unregister old service workers to fix caching issues
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(registration => {
+          registration.unregister();
+          console.log('Service Worker unregistered');
+        });
+      });
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "name": "AINeuroTeamHubStudio",
+  "short_name": "NeuroHub",
+  "description": "AI Team Assistant by Pavel Kazaryan",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F5EFE7",
+  "theme_color": "#213555",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

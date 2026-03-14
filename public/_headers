@@ -1,0 +1,8 @@
+# Disable caching for API functions
+/.netlify/functions/*
+  Cache-Control: no-cache, no-store, must-revalidate
+  Pragma: no-cache
+
+# Cache static assets
+/sw.js
+  Cache-Control: no-cache, no-store, must-revalidate
