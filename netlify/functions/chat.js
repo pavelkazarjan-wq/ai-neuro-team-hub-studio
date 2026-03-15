@@ -2,6 +2,110 @@ const OpenAI = require('openai');
 
 const WORDPRESS_URL = 'https://ninarkotikam.com';
 
+// Supabase config
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://ngxbfuimddefjeufwcwf.supabase.co';
+const SUPABASE_KEY = process.env.SUPABASE_ANON_KEY;
+
+// Supabase REST API helper
+async function supabaseQuery(table, method = 'GET', body = null, query = '') {
+  if (!SUPABASE_KEY) return null;
+
+  const url = `${SUPABASE_URL}/rest/v1/${table}${query}`;
+  const options = {
+    method,
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': method === 'POST' ? 'return=minimal' : undefined
+    }
+  };
+  if (body) options.body = JSON.stringify(body);
+
+  try {
+    const res = await fetch(url, options);
+    if (method === 'POST') return { success: true };
+    return await res.json();
+  } catch (e) {
+    console.error('Supabase error:', e.message);
+    return null;
+  }
+}
+
+// Save message to Supabase
+async function saveMessage(sessionId, agent, role, content) {
+  return supabaseQuery('chat_messages', 'POST', {
+    session_id: sessionId,
+    agent,
+    role,
+    content: content.substring(0, 10000) // Limit content size
+  });
+}
+
+// Get recent messages for context
+async function getRecentMessages(sessionId, limit = 20) {
+  const data = await supabaseQuery(
+    'chat_messages',
+    'GET',
+    null,
+    `?session_id=eq.${sessionId}&order=created_at.desc&limit=${limit}`
+  );
+  return data ? data.reverse() : [];
+}
+
+// Save a learned fact to memory
+async function saveFact(category, fact, sourceMessage) {
+  return supabaseQuery('user_memory', 'POST', {
+    category,
+    fact,
+    source_message: sourceMessage?.substring(0, 500)
+  });
+}
+
+// Get all remembered facts
+async function getMemory() {
+  const data = await supabaseQuery('user_memory', 'GET', null, '?order=created_at.desc&limit=50');
+  return data || [];
+}
+
+// Extract facts from assistant response (simple pattern matching)
+function extractFacts(response) {
+  const facts = [];
+  // Look for statements about user
+  const patterns = [
+    /(?:ты|вы|павел|пользователь)\s+(?:является|работает|имеет|использует|предпочитает|хочет)\s+([^.]+)/gi,
+    /(?:у тебя|у вас|у павла)\s+([^.]+\d+[^.]*)/gi, // Numbers/stats
+    /(?:твой|ваш|его)\s+(?:канал|сайт|бизнес|продукт)\s+([^.]+)/gi
+  ];
+
+  for (const pattern of patterns) {
+    const matches = response.matchAll(pattern);
+    for (const match of matches) {
+      if (match[1]?.length > 10 && match[1]?.length < 200) {
+        facts.push(match[1].trim());
+      }
+    }
+  }
+  return facts;
+}
+
+// Format memory for prompt
+function formatMemoryContext(memories) {
+  if (!memories?.length) return '';
+
+  const grouped = {};
+  for (const m of memories) {
+    if (!grouped[m.category]) grouped[m.category] = [];
+    grouped[m.category].push(m.fact);
+  }
+
+  let context = '\n\nПАМЯТЬ О ПОЛЬЗОВАТЕЛЕ:\n';
+  for (const [cat, facts] of Object.entries(grouped)) {
+    context += `${cat}: ${facts.slice(0, 3).join('; ')}\n`;
+  }
+  return context;
+}
+
 // Extract URLs from message
 function extractUrls(text) {
   const urlRegex = /(https?:\/\/[^\s<>"{}|\\^`[\]]+)/gi;
@@ -196,8 +300,68 @@ exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method not allowed' }) };
 
   try {
-    const { message, agent, systemPrompt, history, youtubeData } = JSON.parse(event.body);
-    if (!message) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Message required' }) };
+    const { message, agent, systemPrompt, history, youtubeData, image, sessionId } = JSON.parse(event.body);
+    if (!message && !image) return { statusCode: 400, headers, body: JSON.stringify({ error: 'Message required' }) };
+
+    // Get memory context from Supabase
+    const memories = await getMemory();
+    const memoryContext = formatMemoryContext(memories);
+
+    // Save user message
+    if (sessionId && message) {
+      saveMessage(sessionId, agent, 'user', message);
+    }
+
+    // If image is attached, use GPT-4o Vision to analyze it
+    if (image) {
+      const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+      const visionPrompt = systemPrompt + `
+
+КРИТИЧЕСКИ ВАЖНО — АНАЛИЗ СКРИНШОТА:
+
+1. ИЗВЛЕКИ ВСЕ ЦИФРЫ:
+   - Просмотры, охват, вовлечённость
+   - Подписчики vs неподписчики
+   - Динамика (рост/падение в %)
+   - Все метрики на экране
+
+2. СРАВНИ С БЕНЧМАРКАМИ:
+   - Reels reach: 20-40% от подписчиков — норма
+   - 3-сек retention > 30% — хороший хук
+   - ER психологов: 3-5%
+
+3. ДИАГНОЗ С ЦИФРАМИ:
+   Не "низкий охват", а "охват 8% при норме 20%"
+
+4. ГОТОВЫЕ РЕШЕНИЯ:
+   - План на неделю (день 1, день 2...)
+   - Готовые тексты: заголовки, CTA, описания
+   - Готовые сценарии хуков
+
+ВАЖНО: Отмечай что ХОРОШО работает! Хвали сильные стороны перед критикой.
+НЕ ДАВАЙ поверхностных советов. ГЕНЕРИРУЙ готовый контент.
+Формат: простой текст без markdown.`;
+
+      const messages = [
+        { role: 'system', content: visionPrompt },
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: message || 'Проанализируй эту статистику и дай рекомендации' },
+            { type: 'image_url', image_url: { url: image, detail: 'high' } }
+          ]
+        }
+      ];
+
+      const response = await client.chat.completions.create({
+        model: 'gpt-4o',
+        max_tokens: 4096,
+        messages
+      });
+
+      return { statusCode: 200, headers, body: JSON.stringify({ response: response.choices[0].message.content, agent }) };
+    }
 
     // Auto-fetch URL content if URLs found in message
     let enrichedMessage = message;
@@ -331,7 +495,7 @@ exports.handler = async (event) => {
     }
 
     // All other agents use Perplexity (search + reasoning)
-    const enhancedPrompt = systemPrompt + ytContext + `
+    const enhancedPrompt = systemPrompt + ytContext + memoryContext + `
 
 ПРАВИЛА ОБЩЕНИЯ:
 - На приветствия отвечай дружелюбно и коротко, без поиска в интернете
@@ -346,6 +510,14 @@ exports.handler = async (event) => {
     const perplexityResponse = await askPerplexity(enrichedMessage, enhancedPrompt, history);
 
     if (perplexityResponse) {
+      // Save to memory
+      if (sessionId) {
+        saveMessage(sessionId, agent, 'assistant', perplexityResponse);
+        const facts = extractFacts(perplexityResponse);
+        for (const fact of facts.slice(0, 2)) {
+          saveFact(agent, fact, message);
+        }
+      }
       return { statusCode: 200, headers, body: JSON.stringify({ response: perplexityResponse, agent }) };
     }
 
@@ -363,7 +535,18 @@ exports.handler = async (event) => {
       messages
     });
 
-    return { statusCode: 200, headers, body: JSON.stringify({ response: response.choices[0].message.content, agent }) };
+    const gptResponse = response.choices[0].message.content;
+
+    // Save to memory
+    if (sessionId) {
+      saveMessage(sessionId, agent, 'assistant', gptResponse);
+      const facts = extractFacts(gptResponse);
+      for (const fact of facts.slice(0, 2)) {
+        saveFact(agent, fact, message);
+      }
+    }
+
+    return { statusCode: 200, headers, body: JSON.stringify({ response: gptResponse, agent }) };
 
   } catch (error) {
     console.error('Error:', error);

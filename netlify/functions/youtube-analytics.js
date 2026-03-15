@@ -1,6 +1,6 @@
 // YouTube Analytics API
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.YOUTUBE_CLIENT_SECRET;
 
 // Simple token storage (in production use database like Supabase/Firebase)
 let accessToken = process.env.YOUTUBE_ACCESS_TOKEN;

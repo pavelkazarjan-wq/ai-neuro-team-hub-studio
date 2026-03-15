@@ -1,6 +1,6 @@
 // YouTube OAuth - Handle callback and store tokens
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
-const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
+const GOOGLE_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET = process.env.YOUTUBE_CLIENT_SECRET;
 const REDIRECT_URI = 'https://aineuro-team-hub.netlify.app/.netlify/functions/youtube-callback';
 
 exports.handler = async (event) => {

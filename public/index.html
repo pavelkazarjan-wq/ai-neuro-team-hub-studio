@@ -604,6 +604,10 @@
     let youtubeAnalytics = null;
     let pendingImage = null;
 
+    // Unique session ID for memory
+    let sessionId = localStorage.getItem('neurohub_session') || crypto.randomUUID();
+    localStorage.setItem('neurohub_session', sessionId);
+
     // Image upload handling
     const imageInput = document.getElementById('imageInput');
     const uploadBtn = document.getElementById('uploadBtn');
@@ -1557,7 +1561,8 @@
             systemPrompt: agentPrompts[currentAgent],
             history: conversationHistory.slice(-10),
             youtubeData: currentAgent === 'youtube' ? youtubeAnalytics : null,
-            image: imageToSend
+            image: imageToSend,
+            sessionId: sessionId
           })
         });
 
@@ -1694,7 +1699,8 @@
             message: text,
             agent: 'brainstorm',
             systemPrompt: '',
-            history: conversationHistory.slice(-6)
+            history: conversationHistory.slice(-6),
+            sessionId: sessionId
           })
         });
 

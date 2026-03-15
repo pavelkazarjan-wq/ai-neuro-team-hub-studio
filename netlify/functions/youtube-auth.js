@@ -1,5 +1,5 @@
 // YouTube OAuth - Start authorization
-const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_ID = process.env.YOUTUBE_CLIENT_ID;
 const REDIRECT_URI = 'https://aineuro-team-hub.netlify.app/.netlify/functions/youtube-callback';
 
 const SCOPES = [
