@@ -3,19 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AINeuroTeamHubStudio v2.3</title>
+  <title>NeuroHub</title>
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#213555">
+  <meta name="theme-color" content="#0a0a0a">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --navy: #213555;
-      --slate: #3E5879;
-      --beige: #D8C4B6;
-      --cream: #F5EFE7;
-      --text: #030303;
+      --bg-primary: #0a0a0a;
+      --bg-secondary: #141414;
+      --bg-elevated: #1a1a1a;
+      --bg-glass: rgba(255, 255, 255, 0.03);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-hover: rgba(255, 255, 255, 0.15);
+      --text-primary: #ffffff;
+      --text-secondary: rgba(255, 255, 255, 0.6);
+      --text-muted: rgba(255, 255, 255, 0.4);
+      --accent: #c9a227;
+      --accent-hover: #d4af37;
+      --accent-glow: rgba(201, 162, 39, 0.15);
+      --danger: #ef4444;
+      --gradient-gold: linear-gradient(135deg, #c9a227, #f4d03f);
+      --gradient-premium: linear-gradient(135deg, #667eea, #764ba2);
     }
 
     * {
@@ -30,9 +41,9 @@
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: var(--slate);
-      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
     }
 
     .app-container {
@@ -41,185 +52,340 @@
       height: 100%;
       display: flex;
       flex-direction: column;
-      background: var(--cream);
-      box-shadow: 0 0 20px rgba(0,0,0,0.3);
+      background: var(--bg-secondary);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
     }
 
     header {
-      background: var(--navy);
-      color: var(--cream);
-      padding: 0.75rem;
+      background: var(--bg-elevated);
+      padding: 1rem;
       text-align: center;
       flex-shrink: 0;
+      border-bottom: 1px solid var(--border);
     }
 
     header h1 {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 600;
+      letter-spacing: 0.5px;
+      color: var(--text-primary);
+    }
+
+    header h1::before {
+      content: '';
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 2px;
+      margin-right: 8px;
+      vertical-align: middle;
     }
 
     .agents {
       display: flex;
-      gap: 0.4rem;
-      padding: 0.5rem;
+      gap: 6px;
+      padding: 12px;
       overflow-x: auto;
-      background: var(--beige);
+      background: var(--bg-elevated);
       flex-shrink: 0;
       flex-wrap: wrap;
       justify-content: center;
+      border-bottom: 1px solid var(--border);
     }
 
     .agent-btn {
-      padding: 0.4rem 0.7rem;
-      border: none;
-      border-radius: 15px;
-      background: var(--cream);
-      color: var(--navy);
-      font-size: 0.75rem;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-glass);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
       cursor: pointer;
       white-space: nowrap;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .agent-btn:hover {
+      border-color: var(--border-hover);
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
     }
 
     .agent-btn.active {
-      background: var(--navy);
-      color: var(--cream);
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #000;
+      font-weight: 600;
     }
 
     .agent-btn.clear-btn {
-      background: #dc3545;
-      color: white;
+      background: transparent;
+      border-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .agent-btn.clear-btn:hover {
+      background: var(--danger);
+      color: #fff;
     }
 
     .agent-btn.brainstorm-btn {
-      background: linear-gradient(135deg, #f59e0b, #ef4444);
-      color: white;
+      background: var(--gradient-premium);
+      border: none;
+      color: #fff;
     }
 
     .agent-btn.brainstorm-btn.active {
-      background: linear-gradient(135deg, #d97706, #dc2626);
-      box-shadow: 0 0 8px rgba(245, 158, 11, 0.5);
+      box-shadow: 0 0 20px rgba(102, 126, 234, 0.4);
     }
 
     .agent-select {
-      padding: 0.4rem 0.5rem;
-      border: 2px solid var(--navy);
-      border-radius: 15px;
-      background: var(--cream);
-      color: var(--navy);
-      font-size: 0.75rem;
-      font-weight: 600;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      background: var(--bg-glass);
+      color: var(--text-secondary);
+      font-size: 12px;
+      font-weight: 500;
       cursor: pointer;
+      backdrop-filter: blur(10px);
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='rgba(255,255,255,0.4)' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 8px center;
+      padding-right: 28px;
     }
 
     .agent-select:focus {
       outline: none;
-      background: var(--navy);
-      color: var(--cream);
+      border-color: var(--accent);
+    }
+
+    .agent-select option {
+      background: var(--bg-elevated);
+      color: var(--text-primary);
     }
 
     .current-agent-label {
-      padding: 0.3rem 0.6rem;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: white;
-      border-radius: 15px;
-      font-size: 0.7rem;
+      padding: 6px 12px;
+      background: var(--gradient-gold);
+      color: #000;
+      border-radius: 4px;
+      font-size: 11px;
       font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
     }
 
     .chat-container {
       flex: 1;
       overflow-y: auto;
-      padding: 0.75rem;
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 0.75rem;
+      gap: 12px;
       -webkit-overflow-scrolling: touch;
+      background: var(--bg-primary);
+    }
+
+    .chat-container::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .chat-container::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .chat-container::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
     }
 
     .message {
-      max-width: 90%;
-      padding: 0.6rem 0.8rem;
-      border-radius: 1rem;
-      line-height: 1.4;
-      font-size: 0.9rem;
+      max-width: 88%;
+      padding: 12px 16px;
+      border-radius: 12px;
+      line-height: 1.5;
+      font-size: 14px;
     }
 
     .message.user {
       align-self: flex-end;
-      background: var(--navy);
-      color: var(--cream);
-      border-bottom-right-radius: 0.25rem;
+      background: var(--accent);
+      color: #000;
+      border-bottom-right-radius: 4px;
+      font-weight: 500;
     }
 
     .message.assistant {
       align-self: flex-start;
-      background: white;
-      border: 1px solid var(--beige);
-      border-bottom-left-radius: 0.25rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-bottom-left-radius: 4px;
+      color: var(--text-primary);
     }
 
     .message.assistant a {
-      color: var(--navy);
-      text-decoration: underline;
+      color: var(--accent);
+      text-decoration: none;
+      border-bottom: 1px solid var(--accent);
+      transition: opacity 0.2s;
+    }
+
+    .message.assistant a:hover {
+      opacity: 0.8;
     }
 
     .input-area {
-      padding: 0.5rem;
-      background: white;
-      border-top: 1px solid var(--beige);
+      padding: 12px 16px;
+      background: var(--bg-elevated);
+      border-top: 1px solid var(--border);
       display: flex;
-      gap: 0.4rem;
+      gap: 10px;
       flex-shrink: 0;
     }
 
     #messageInput {
       flex: 1;
-      padding: 0.6rem 0.8rem;
-      border: 2px solid var(--beige);
-      border-radius: 1.5rem;
-      font-size: 0.9rem;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
       outline: none;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    #messageInput::placeholder {
+      color: var(--text-muted);
     }
 
     #messageInput:focus {
-      border-color: var(--navy);
+      border-color: var(--accent);
     }
 
     #sendBtn {
-      padding: 0.6rem 1rem;
-      background: var(--navy);
-      color: var(--cream);
+      padding: 12px 20px;
+      background: var(--accent);
+      color: #000;
       border: none;
-      border-radius: 1.5rem;
-      font-size: 0.9rem;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
       cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    #sendBtn:hover {
+      background: var(--accent-hover);
+      transform: translateY(-1px);
     }
 
     #sendBtn:disabled {
-      background: var(--beige);
+      background: var(--bg-glass);
+      color: var(--text-muted);
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Image upload */
+    .upload-btn {
+      padding: 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .upload-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .upload-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    #imageInput {
+      display: none;
+    }
+
+    .image-preview {
+      position: relative;
+      margin-bottom: 8px;
+      padding: 8px;
+      background: var(--bg-elevated);
+      border-radius: 8px;
+      border: 1px solid var(--border);
+    }
+
+    .image-preview img {
+      max-width: 200px;
+      max-height: 150px;
+      border-radius: 6px;
+    }
+
+    .image-preview .remove-image {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 24px;
+      height: 24px;
+      background: var(--danger);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .message img {
+      max-width: 100%;
+      border-radius: 8px;
+      margin-top: 8px;
     }
 
     .typing {
       display: flex;
-      gap: 0.25rem;
-      padding: 0.5rem;
+      gap: 4px;
+      padding: 8px;
+      align-items: center;
     }
 
     .typing span {
       width: 6px;
       height: 6px;
-      background: var(--slate);
+      background: var(--accent);
       border-radius: 50%;
-      animation: bounce 1.4s infinite ease-in-out;
+      animation: pulse 1.4s infinite ease-in-out;
     }
 
     .typing span:nth-child(1) { animation-delay: -0.32s; }
     .typing span:nth-child(2) { animation-delay: -0.16s; }
 
-    @keyframes bounce {
-      0%, 80%, 100% { transform: scale(0); }
-      40% { transform: scale(1); }
+    @keyframes pulse {
+      0%, 80%, 100% {
+        transform: scale(0.6);
+        opacity: 0.4;
+      }
+      40% {
+        transform: scale(1);
+        opacity: 1;
+      }
     }
 
     /* Tablet */
@@ -229,48 +395,49 @@
       }
 
       header h1 {
-        font-size: 1.3rem;
+        font-size: 1.1rem;
       }
 
       .agents {
-        gap: 0.6rem;
-        padding: 0.75rem;
+        gap: 8px;
+        padding: 16px;
       }
 
       .agent-btn {
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
+        padding: 10px 18px;
+        font-size: 13px;
       }
 
       .agent-select {
-        padding: 0.5rem 0.75rem;
-        font-size: 0.85rem;
+        padding: 10px 14px;
+        font-size: 13px;
+        padding-right: 32px;
       }
 
       .chat-container {
-        padding: 1rem;
-        gap: 1rem;
+        padding: 20px;
+        gap: 14px;
       }
 
       .message {
         max-width: 80%;
-        padding: 0.8rem 1rem;
-        font-size: 1rem;
+        padding: 14px 18px;
+        font-size: 15px;
       }
 
       .input-area {
-        padding: 0.75rem;
-        gap: 0.5rem;
+        padding: 16px 20px;
+        gap: 12px;
       }
 
       #messageInput {
-        padding: 0.75rem 1rem;
-        font-size: 1rem;
+        padding: 14px 18px;
+        font-size: 15px;
       }
 
       #sendBtn {
-        padding: 0.75rem 1.5rem;
-        font-size: 1rem;
+        padding: 14px 28px;
+        font-size: 15px;
       }
     }
 
@@ -278,70 +445,82 @@
     @media (min-width: 1200px) {
       .app-container {
         max-width: 900px;
+        box-shadow: 0 0 80px rgba(0,0,0,0.5);
       }
 
       header {
-        padding: 1rem;
+        padding: 1.25rem;
       }
 
       header h1 {
-        font-size: 1.5rem;
+        font-size: 1.2rem;
       }
 
       .agents {
-        gap: 0.75rem;
-        padding: 1rem;
+        gap: 10px;
+        padding: 18px 24px;
       }
 
       .agent-btn {
-        padding: 0.6rem 1.2rem;
-        font-size: 0.9rem;
+        padding: 10px 20px;
+        font-size: 13px;
+        border-radius: 8px;
       }
 
       .agent-select {
-        padding: 0.6rem 1rem;
-        font-size: 0.9rem;
-        min-width: 140px;
+        padding: 10px 16px;
+        font-size: 13px;
+        min-width: 130px;
+        border-radius: 8px;
       }
 
       .current-agent-label {
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
+        padding: 8px 14px;
+        font-size: 11px;
       }
 
       .chat-container {
-        padding: 1.5rem;
-        gap: 1rem;
+        padding: 24px 32px;
+        gap: 16px;
       }
 
       .message {
         max-width: 75%;
-        padding: 1rem 1.25rem;
-        font-size: 1rem;
-        line-height: 1.5;
+        padding: 16px 20px;
+        font-size: 15px;
+        line-height: 1.6;
+        border-radius: 14px;
       }
 
       .input-area {
-        padding: 1rem;
-        gap: 0.75rem;
+        padding: 18px 24px;
+        gap: 14px;
       }
 
       #messageInput {
-        padding: 1rem 1.25rem;
-        font-size: 1rem;
+        padding: 16px 20px;
+        font-size: 15px;
+        border-radius: 10px;
       }
 
       #sendBtn {
-        padding: 1rem 2rem;
-        font-size: 1rem;
+        padding: 16px 32px;
+        font-size: 15px;
+        border-radius: 10px;
       }
     }
 
-    /* Full width on very large screens */
+    /* Large screens */
     @media (min-width: 1600px) {
       .app-container {
         max-width: 1000px;
       }
+    }
+
+    /* Selection styling */
+    ::selection {
+      background: var(--accent);
+      color: #000;
     }
   </style>
 </head>
@@ -372,6 +551,20 @@
         <option value="traffic">Трафик</option>
       </select>
 
+      <select class="agent-select" id="taskSelect">
+        <option value="">Задачи</option>
+        <option value="yt_audit">Аудит YouTube</option>
+        <option value="yt_topics">Темы YouTube</option>
+        <option value="yt_script">Сценарий видео</option>
+        <option value="site_audit">Аудит сайта</option>
+        <option value="lead_magnet">Лид-магниты</option>
+        <option value="utp">УТП и офферы</option>
+        <option value="landing">Структура лендинга</option>
+        <option value="content_strategy">Контент-стратегия</option>
+        <option value="competitor">Анализ конкурентов</option>
+        <option value="ca_segment">Сегментация ЦА</option>
+      </select>
+
       <button class="agent-btn" data-agent="wordpress">WP</button>
       <button class="agent-btn" data-agent="seo">SEO</button>
       <button class="agent-btn" data-agent="content">Контент</button>
@@ -387,6 +580,14 @@
     </div>
 
     <div class="input-area">
+      <input type="file" id="imageInput" accept="image/*">
+      <button class="upload-btn" id="uploadBtn" title="Загрузить скриншот">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
+          <circle cx="8.5" cy="8.5" r="1.5"/>
+          <polyline points="21 15 16 10 5 21"/>
+        </svg>
+      </button>
       <input type="text" id="messageInput" placeholder="Введите сообщение..." autocomplete="off">
       <button id="sendBtn">Отправить</button>
     </div>
@@ -401,6 +602,52 @@
     let currentAgent = 'general';
     let conversationHistory = [];
     let youtubeAnalytics = null;
+    let pendingImage = null;
+
+    // Image upload handling
+    const imageInput = document.getElementById('imageInput');
+    const uploadBtn = document.getElementById('uploadBtn');
+
+    uploadBtn.addEventListener('click', () => imageInput.click());
+
+    imageInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Файл слишком большой. Максимум 5MB.');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        pendingImage = event.target.result;
+        showImagePreview(pendingImage);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    function showImagePreview(dataUrl) {
+      // Remove existing preview
+      const existing = document.querySelector('.image-preview');
+      if (existing) existing.remove();
+
+      const preview = document.createElement('div');
+      preview.className = 'image-preview';
+      preview.innerHTML = `
+        <img src="${dataUrl}" alt="Preview">
+        <button class="remove-image" onclick="removeImage()">×</button>
+      `;
+      chatContainer.appendChild(preview);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    window.removeImage = function() {
+      pendingImage = null;
+      imageInput.value = '';
+      const preview = document.querySelector('.image-preview');
+      if (preview) preview.remove();
+    };
 
     // Base context about the user
     const userContext = `
@@ -563,16 +810,48 @@
 
 Дай ЭТИ рекомендации адаптированные под запрос пользователя.`,
 
-      'instagram': userContext + `Ты — маркетинговый консультант по Instagram.
+      'instagram': userContext + `Ты — жёсткий Instagram-стратег. НЕ ДАВАЙ поверхностных советов.
 
-ТВОЯ РОЛЬ — критиковать и улучшать:
-- Находи ошибки в профиле, контенте, стратегии
-- Указывай что не работает и почему
-- Давай конкретные рекомендации с примерами
-- Сравнивай с успешными конкурентами
+ПРАВИЛО #1: ВСЕГДА ГЕНЕРИРУЙ ГОТОВЫЙ КОНТЕНТ.
+Не пиши "добавь CTA" — напиши ГОТОВЫЙ CTA.
+Не пиши "улучши заголовок" — напиши 3 ГОТОВЫХ заголовка.
 
-Отвечай в формате: ПРОБЛЕМЫ → ЧТО ИСПРАВИТЬ → ПРИОРИТЕТЫ
-Используй web_search для данных. Простой текст, без markdown.`,
+ПРИ АНАЛИЗЕ СКРИНШОТА СТАТИСТИКИ:
+1. Прочитай ВСЕ цифры с экрана
+2. Сравни с бенчмарками ниши (ER психологов 3-5%, reach/followers 15-25%)
+3. Найди КОНКРЕТНУЮ проблему (не "низкий охват", а "охват 8% при норме 20% — проблема в хуках")
+4. Дай ГОТОВОЕ РЕШЕНИЕ с примером
+
+ВАЖНО: Сначала отметь что ХОРОШО работает! Похвали сильные метрики перед критикой.
+
+ФОРМАТ ОТВЕТА:
+
+ЧТО РАБОТАЕТ ХОРОШО:
+[конкретные сильные стороны с цифрами]
+
+ДИАГНОЗ (1-2 предложения, конкретная проблема)
+
+ПЛАН НА НЕДЕЛЮ:
+Пн: [конкретное действие]
+Вт: [конкретное действие]
+...
+
+ГОТОВЫЙ КОНТЕНТ:
+• Био профиля (150 символов):
+[готовый текст]
+
+• 3 заголовка для следующих Reels:
+1. [готовый заголовок]
+2. [готовый заголовок]
+3. [готовый заголовок]
+
+• CTA для сторис:
+[готовый текст]
+
+• Текст для закрепа:
+[готовый пост 200-300 символов]
+
+Простой текст, без markdown. Только русский.`,
 
       'tiktok': userContext + `Ты — маркетинговый консультант по TikTok.
 
@@ -595,15 +874,56 @@
 Отвечай в формате: ПРОБЛЕМЫ → ЧТО ИСПРАВИТЬ → ПРИОРИТЕТЫ
 Используй web_search для данных. Простой текст, без markdown.`,
 
-      'facebook': userContext + `Ты — маркетинговый консультант по Facebook.
+      'facebook': userContext + `Ты — жёсткий Facebook-стратег. НЕ ДАВАЙ поверхностных советов.
 
-ТВОЯ РОЛЬ — критиковать и улучшать:
-- Находи ошибки на странице, в рекламе, контенте
-- Указывай проблемы с таргетингом и охватами
-- Давай конкретные рекомендации по улучшению
+ПРАВИЛО #1: ВСЕГДА ГЕНЕРИРУЙ ГОТОВЫЙ КОНТЕНТ.
+Не пиши "улучши описание" — напиши ГОТОВОЕ описание.
+Не пиши "добавь CTA" — напиши ГОТОВЫЙ CTA.
 
-Отвечай в формате: ПРОБЛЕМЫ → ЧТО ИСПРАВИТЬ → ПРИОРИТЕТЫ
-Используй web_search для данных. Простой текст, без markdown.`,
+ПРИ АНАЛИЗЕ СКРИНШОТА СТАТИСТИКИ:
+1. Прочитай ВСЕ цифры: просмотры, охват, вовлечённость, подписчики vs неподписчики
+2. Сравни с бенчмарками:
+   - Reels reach: 20-40% от подписчиков — норма
+   - 3-сек просмотры / просмотры > 30% — хороший хук
+   - 1-мин просмотры — показатель глубины
+3. Найди КОРНЕВУЮ проблему
+4. Дай ГОТОВОЕ РЕШЕНИЕ
+
+ВАЖНО: Сначала отметь что ХОРОШО! Похвали сильные метрики перед критикой.
+
+ФОРМАТ ОТВЕТА:
+
+ЧТО ОТЛИЧНО:
+[сильные стороны с цифрами — 10М просмотров это мощно!]
+
+ДИАГНОЗ:
+[2-3 предложения с цифрами: "При 10М просмотров только 164 минутных — retention 0.001%. Проблема: контент не держит после хука"]
+
+ПЛАН НА 7 ДНЕЙ:
+День 1: [конкретное действие]
+День 2: [конкретное действие]
+...
+
+ГОТОВЫЙ КОНТЕНТ:
+• Описание страницы (160 символов):
+[готовый текст с CTA и ссылкой]
+
+• 5 заголовков для Reels с формулой [Боль + Обещание]:
+1. [готовый заголовок]
+2. [готовый заголовок]
+...
+
+• Сценарий первых 5 секунд (хук):
+[готовый текст для озвучки]
+
+• Пин-пост с оффером:
+[готовый текст 200-400 символов]
+
+МЕТРИКИ ДЛЯ ОТСЛЕЖИВАНИЯ:
+• [метрика 1] — текущее значение → целевое
+• [метрика 2] — текущее значение → целевое
+
+Простой текст, без markdown. Только русский.`,
 
       'reels': `Ты — эксперт-стратег по короткому контенту и сценарист (TikTok, Reels, Shorts).
 
@@ -721,7 +1041,384 @@
 - Не нарушать правила платформ/групп
 - Только русский язык
 
-Спроси у пользователя: Какая стратегия (Comment Hijacking / Value Drops)? Контекст (текст поста конкурента или суть видео)? Что в вашем профиле (приманка)?`
+Спроси у пользователя: Какая стратегия (Comment Hijacking / Value Drops)? Контекст (текст поста конкурента или суть видео)? Что в вашем профиле (приманка)?`,
+
+      // Task mode prompts
+      'yt_audit': userContext + `Ты — эксперт по аудиту YouTube-каналов для психологов и экспертов.
+
+ЗАДАЧА: Провести комплексный аудит YouTube-канала.
+
+АЛГОРИТМ АУДИТА:
+
+1. ПОЗИЦИОНИРОВАНИЕ
+   - Чёткая ниша? Понятно ли за 5 секунд, о чём канал?
+   - Уникальное торговое предложение? Чем отличается от конкурентов?
+   - Целевая аудитория определена?
+
+2. ВИЗУАЛЬНЫЙ БРЕНДИНГ
+   - Аватар: профессиональное фото, узнаваемость
+   - Баннер: УТП, расписание, призыв
+   - Превью: единый стиль, лицо, эмоция, текст
+
+3. ОПТИМИЗАЦИЯ
+   - Название канала: ключевые слова?
+   - Описание канала: SEO, ссылки, структура?
+   - Плейлисты: логичная структура контента?
+
+4. КОНТЕНТ-СТРАТЕГИЯ
+   - Частота публикаций
+   - Форматы контента (длинные видео, Shorts, стримы)
+   - Заголовки: цепляют или скучные?
+   - Первые 30 секунд: есть хук или нет?
+
+5. МЕТРИКИ (если доступны)
+   - CTR превью (норма 4-10%)
+   - Удержание (норма 40-50%)
+   - Подписки с видео
+
+ФОРМАТ ОТВЕТА:
+Для каждого пункта: оценка + что исправить + конкретный пример.
+
+Попроси ссылку на канал или опиши что известно о канале.`,
+
+      'yt_topics': userContext + `Ты — генератор тем для YouTube в нише психологии и личностного развития.
+
+ЗАДАЧА: Создать 10 тем для YouTube-видео с высоким потенциалом.
+
+ФОРМАТ КАЖДОЙ ТЕМЫ:
+
+1. ЗАГОЛОВОК ВИДЕО (по формуле: Боль + Обещание + Срок)
+   Пример: "Почему ты себя ненавидишь и как это исправить за 7 дней"
+
+2. ХУК (первые 5 секунд)
+   Шокирующий факт или вопрос
+
+3. СТРУКТУРА ВИДЕО (5-7 пунктов)
+   Логика: Проблема → Причина → Решение → Действие
+
+4. КЛЮЧЕВЫЕ СЛОВА для SEO (5-7 штук)
+
+5. ЦЕЛЕВАЯ АУДИТОРИЯ
+   Кому это видео? Какая боль?
+
+КРИТЕРИИ ВЫБОРА ТЕМ:
+- Высокий поисковый спрос (вечнозелёные темы)
+- Эмоциональный отклик (боль, страх, надежда)
+- Возможность показать экспертность
+- Потенциал для продажи услуг
+
+Спроси: Какая специализация? Какие продукты продаёшь? Какие темы уже снимал?`,
+
+      'yt_script': userContext + `Ты — сценарист YouTube-видео для экспертов и психологов.
+
+ЗАДАЧА: Написать полный сценарий видео.
+
+СТРУКТУРА СЦЕНАРИЯ:
+
+1. ХУК (0:00-0:30)
+   - Шокирующий факт / статистика
+   - Провокационный вопрос
+   - Обещание результата
+   Пример: "90% людей делают ЭТУ ошибку в отношениях и даже не подозревают об этом"
+
+2. ПРОБЛЕМА (0:30-2:00)
+   - Описание боли зрителя
+   - "Узнаёшь себя?"
+   - Почему это важно решить сейчас
+
+3. ПРИЧИНА (2:00-4:00)
+   - Почему проблема существует
+   - Разрушение мифов
+   - Научное обоснование
+
+4. РЕШЕНИЕ (4:00-8:00)
+   - 3-5 конкретных шагов
+   - Примеры из практики
+   - "Делай вот так..."
+
+5. ПРИЗЫВ (последние 30 сек)
+   - Подписка + колокольчик
+   - Ссылка на бесплатный материал
+   - Следующее видео
+
+ПРАВИЛА:
+- Разговорный стиль, не академический
+- Короткие предложения
+- Эмоциональные переходы
+- Конкретика, не абстракции
+
+Спроси: Тема видео? Длительность (5/10/15 мин)? Есть ли оффер в конце?`,
+
+      'site_audit': userContext + `Ты — эксперт по аудиту сайтов психологов и экспертов.
+
+ЗАДАЧА: Провести комплексный аудит сайта на конверсию.
+
+ЧЕКЛИСТ АУДИТА:
+
+1. ПЕРВЫЙ ЭКРАН (Above the fold)
+   - Понятно ли за 5 секунд, что предлагается?
+   - Есть ли главный оффер?
+   - Призыв к действию (CTA) виден?
+   - Доверие: фото, регалии, результаты?
+
+2. ОФФЕР
+   - Чёткая формулировка выгоды?
+   - Для кого? (сегмент аудитории)
+   - Что получит клиент?
+   - Почему именно сейчас?
+
+3. ДОВЕРИЕ
+   - Отзывы (видео, текст, результаты)
+   - Кейсы с цифрами
+   - Регалии, сертификаты, СМИ
+   - Гарантии
+
+4. СТРУКТУРА
+   - Логика страницы (боль → решение → доказательства → CTA)
+   - Количество CTA (минимум 3)
+   - Навигация понятна?
+
+5. ТЕХНИЧЕСКОЕ
+   - Скорость загрузки
+   - Мобильная версия
+   - Формы работают?
+
+ФОРМАТ ОТВЕТА:
+Для каждого пункта: что есть → что не так → как исправить.
+
+Попроси ссылку на сайт.`,
+
+      'lead_magnet': userContext + `Ты — эксперт по созданию лид-магнитов для психологов.
+
+ЗАДАЧА: Разработать 5 вариантов лид-магнитов.
+
+КРИТЕРИИ ИДЕАЛЬНОГО ЛИД-МАГНИТА:
+- Решает конкретную микро-проблему
+- Даёт быстрый результат (5-15 минут)
+- Показывает экспертность
+- Естественно ведёт к платному продукту
+- Легко потребляется (PDF 3-7 страниц, чеклист, видео 10-15 мин)
+
+ФОРМАТЫ:
+1. Чеклист ("7 признаков того, что...")
+2. Мини-гайд ("Как сделать X за 5 шагов")
+3. Тест/Квиз ("Узнай свой тип...")
+4. Шаблон ("Готовый скрипт для...")
+5. Видео-урок ("Техника X за 10 минут")
+
+ДЛЯ КАЖДОГО ВАРИАНТА:
+1. Название (цепляющее)
+2. Обещание (что получит)
+3. Структура (из чего состоит)
+4. Связь с платным продуктом
+5. Текст для лендинга (заголовок + 3 буллита)
+
+Спроси: Специализация? Какой платный продукт? Целевая аудитория?`,
+
+      'utp': userContext + `Ты — стратег по позиционированию для психологов и экспертов.
+
+ЗАДАЧА: Разработать УТП и офферы.
+
+АЛГОРИТМ СОЗДАНИЯ УТП:
+
+1. АНАЛИЗ ЦЕЛЕВОЙ АУДИТОРИИ
+   - Кто идеальный клиент?
+   - Главная боль?
+   - Что уже пробовали?
+   - Почему не сработало?
+
+2. АНАЛИЗ КОНКУРЕНТОВ
+   - Что предлагают другие?
+   - Какие обещания дают?
+   - Где их слабые места?
+
+3. ВАША УНИКАЛЬНОСТЬ
+   - Методология?
+   - Опыт/результаты?
+   - Формат работы?
+   - Гарантии?
+
+ФОРМУЛА УТП:
+[Результат] + [Срок] + [Для кого] + [Без чего/благодаря чему]
+
+Пример: "Избавление от панических атак за 8 сессий без таблеток — для тех, кто устал бояться"
+
+ФОРМАТ ВЫВОДА:
+1. 3 варианта УТП
+2. Главный оффер (для лендинга)
+3. 5 вспомогательных офферов (для соцсетей)
+4. Позиционирующая фраза (для био)
+
+Спроси: Специализация? Главный продукт? Уникальный метод? Результаты клиентов?`,
+
+      'landing': userContext + `Ты — эксперт по структуре продающих лендингов.
+
+ЗАДАЧА: Создать структуру лендинга с текстами.
+
+ОБЯЗАТЕЛЬНЫЕ БЛОКИ:
+
+1. ПЕРВЫЙ ЭКРАН
+   - Заголовок (УТП + результат)
+   - Подзаголовок (для кого + как)
+   - 3-5 буллитов (ключевые выгоды)
+   - CTA (кнопка)
+   - Элемент доверия (фото, цифры)
+
+2. ПРОБЛЕМА
+   - Описание боли (5-7 пунктов)
+   - "Узнаёшь себя?"
+   - Усугубление (что будет, если не решить)
+
+3. РЕШЕНИЕ
+   - Ваш метод/продукт
+   - Как это работает (3-5 шагов)
+   - Почему это сработает
+
+4. ПРОГРАММА/СОСТАВ
+   - Что внутри (модули, уроки, материалы)
+   - Ценность каждого элемента
+
+5. РЕЗУЛЬТАТЫ
+   - Что получит клиент (конкретно)
+   - До/После
+   - Отзывы с результатами
+
+6. ОБ АВТОРЕ
+   - Регалии
+   - Опыт
+   - Почему именно вы
+
+7. ЦЕНА И CTA
+   - Ценность vs Цена
+   - Бонусы
+   - Гарантия
+   - Призыв к действию
+
+8. FAQ
+   - 5-7 частых возражений
+
+Спроси: Что продаём? Цена? Для кого? Какой результат обещаем?`,
+
+      'content_strategy': userContext + `Ты — стратег по контент-маркетингу для экспертов.
+
+ЗАДАЧА: Разработать контент-стратегию на месяц.
+
+СТРУКТУРА СТРАТЕГИИ:
+
+1. КОНТЕНТ-МИКС (соотношение типов контента)
+   - Экспертный (30%): разборы, гайды, объяснения
+   - Личный (20%): истории, закулисье, мнения
+   - Вовлекающий (25%): вопросы, опросы, дискуссии
+   - Продающий (15%): офферы, кейсы, отзывы
+   - Развлекательный (10%): мемы, тренды, юмор
+
+2. КОНТЕНТ-ПЛАН НА 4 НЕДЕЛИ
+   Для каждого дня:
+   - Платформа
+   - Тип контента
+   - Тема
+   - Формат (пост, сторис, видео, рилс)
+   - CTA
+
+3. РУБРИКИ (5-7 повторяющихся форматов)
+   Пример:
+   - Понедельник: Мотивация
+   - Среда: Экспертный пост
+   - Пятница: Личное/закулисье
+
+4. ВОРОНКА КОНТЕНТА
+   - Охватный контент → Вовлечение → Прогрев → Продажа
+
+5. МЕТРИКИ ДЛЯ ОТСЛЕЖИВАНИЯ
+   - Охват, ER, сохранения, переходы по ссылке
+
+Спроси: Какие платформы? Сколько постов в неделю? Что продаём? Текущая аудитория?`,
+
+      'competitor': userContext + `Ты — аналитик конкурентов для психологов и экспертов.
+
+ЗАДАЧА: Провести анализ конкурентов.
+
+АЛГОРИТМ АНАЛИЗА:
+
+1. ПОЗИЦИОНИРОВАНИЕ
+   - Как себя называет?
+   - Какая ниша?
+   - УТП?
+   - Для какой аудитории?
+
+2. ПРОДУКТОВАЯ ЛИНЕЙКА
+   - Бесплатные материалы (лид-магниты)
+   - Недорогие продукты (tripwire)
+   - Основные продукты
+   - Премиум-продукты
+   - Ценообразование
+
+3. КОНТЕНТ-СТРАТЕГИЯ
+   - Какие платформы?
+   - Частота публикаций?
+   - Какой контент заходит лучше?
+   - Форматы (видео, текст, подкаст)?
+
+4. ВОРОНКА ПРОДАЖ
+   - Откуда трафик?
+   - Как прогревают?
+   - Как продают?
+   - Какие триггеры используют?
+
+5. СИЛЬНЫЕ И СЛАБЫЕ СТОРОНЫ
+   - Что делают хорошо?
+   - Где пробелы?
+   - Что можно сделать лучше?
+
+ФОРМАТ ВЫВОДА:
+Таблица сравнения + выводы + рекомендации для вашего позиционирования.
+
+Спроси: Ссылки на конкурентов? Или описание ниши для поиска?`,
+
+      'ca_segment': userContext + `Ты — эксперт по сегментации целевой аудитории.
+
+ЗАДАЧА: Создать детальные портреты целевой аудитории.
+
+АЛГОРИТМ СЕГМЕНТАЦИИ:
+
+1. БАЗОВАЯ СЕГМЕНТАЦИЯ
+   - По проблеме (что болит?)
+   - По стадии осознания (знают о проблеме или нет?)
+   - По платёжеспособности
+   - По срочности решения
+
+2. ДЛЯ КАЖДОГО СЕГМЕНТА — АВАТАР:
+
+   ДЕМОГРАФИЯ:
+   - Возраст, пол
+   - Семейное положение
+   - Доход, профессия
+   - География
+
+   ПСИХОГРАФИЯ:
+   - Ценности
+   - Страхи
+   - Желания
+   - Возражения
+
+   ПОВЕДЕНИЕ:
+   - Где обитает онлайн?
+   - Что читает/смотрит?
+   - Кому доверяет?
+   - Как принимает решения?
+
+   БОЛИ И ПОТРЕБНОСТИ:
+   - Главная боль (цитата)
+   - Что уже пробовали?
+   - Почему не сработало?
+   - Идеальный результат?
+
+3. СООБЩЕНИЯ ДЛЯ КАЖДОГО СЕГМЕНТА
+   - Главный месседж
+   - Заголовок для рекламы
+   - Оффер
+
+Спроси: Специализация? Какие продукты? Кто сейчас покупает?`
     };
 
     // Agent names for display
@@ -738,12 +1435,24 @@
       'reels': '🎬 Reels',
       'masterclass': '🎓 Мастер-класс',
       'salespage': '📄 Лендинг',
-      'traffic': '🚀 Трафик'
+      'traffic': '🚀 Трафик',
+      // Task modes
+      'yt_audit': '🎯 Аудит YouTube',
+      'yt_topics': '💡 Темы YouTube',
+      'yt_script': '📝 Сценарий',
+      'site_audit': '🔍 Аудит сайта',
+      'lead_magnet': '🧲 Лид-магниты',
+      'utp': '✨ УТП и офферы',
+      'landing': '📄 Лендинг',
+      'content_strategy': '📅 Контент-стратегия',
+      'competitor': '🕵️ Анализ конкурентов',
+      'ca_segment': '👥 Сегментация ЦА'
     };
 
     const currentAgentLabel = document.getElementById('currentAgentLabel');
     const socialSelect = document.getElementById('socialSelect');
     const arsenalSelect = document.getElementById('arsenalSelect');
+    const taskSelect = document.getElementById('taskSelect');
 
     function updateAgentLabel() {
       if (currentAgent !== 'general') {
@@ -759,6 +1468,7 @@
       agentBtns.forEach(b => b.classList.remove('active'));
       socialSelect.value = '';
       arsenalSelect.value = '';
+      taskSelect.value = '';
 
       // Set new agent
       currentAgent = agentId;
@@ -795,20 +1505,34 @@
       }
     });
 
+    taskSelect.addEventListener('change', (e) => {
+      if (e.target.value) {
+        setAgent(e.target.value);
+      }
+    });
+
     updateAgentLabel();
 
     // Send message
     async function sendMessage() {
       const text = messageInput.value.trim();
-      if (!text) return;
+      if (!text && !pendingImage) return;
 
       // Use brainstorm mode if active
       if (brainstormMode) {
         return sendBrainstorm(text);
       }
 
-      addMessage(text, 'user');
+      // Show user message with image if attached
+      if (pendingImage) {
+        addMessageWithImage(text || 'Проанализируй скриншот', 'user', pendingImage);
+      } else {
+        addMessage(text, 'user');
+      }
+
+      const imageToSend = pendingImage;
       messageInput.value = '';
+      removeImage();
       sendBtn.disabled = true;
 
       // Add typing indicator
@@ -828,11 +1552,12 @@
             'Pragma': 'no-cache'
           },
           body: JSON.stringify({
-            message: text,
+            message: text || 'Проанализируй этот скриншот статистики',
             agent: currentAgent,
             systemPrompt: agentPrompts[currentAgent],
             history: conversationHistory.slice(-10),
-            youtubeData: currentAgent === 'youtube' ? youtubeAnalytics : null
+            youtubeData: currentAgent === 'youtube' ? youtubeAnalytics : null,
+            image: imageToSend
           })
         });
 
@@ -893,10 +1618,18 @@
         .replace(/\*([^*]+)\*/g, '$1')
         .replace(/^[-*+]\s+/gm, '• ')
         .replace(/^\d+\.\s+/gm, '')
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" style="color:#213555;text-decoration:underline">$1</a>')
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank">$1</a>')
         .replace(/\n/g, '<br>');
 
       div.innerHTML = html;
+      chatContainer.appendChild(div);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+
+    function addMessageWithImage(text, role, imageDataUrl) {
+      const div = document.createElement('div');
+      div.className = `message ${role}`;
+      div.innerHTML = `${text}<br><img src="${imageDataUrl}" alt="Screenshot">`;
       chatContainer.appendChild(div);
       chatContainer.scrollTop = chatContainer.scrollHeight;
     }
