@@ -352,11 +352,11 @@
     </header>
 
     <div class="agents">
-      <button class="agent-btn clear-btn" id="clearHistory">🗑️</button>
-      <button class="agent-btn active" data-agent="general">💬</button>
+      <button class="agent-btn clear-btn" id="clearHistory">Очистить</button>
+      <button class="agent-btn active" data-agent="general">Чат</button>
 
       <select class="agent-select" id="socialSelect">
-        <option value="">📱 Соцсети</option>
+        <option value="">Соцсети</option>
         <option value="youtube">YouTube</option>
         <option value="instagram">Instagram</option>
         <option value="tiktok">TikTok</option>
@@ -365,17 +365,17 @@
       </select>
 
       <select class="agent-select" id="arsenalSelect">
-        <option value="">🚀 Arsenal</option>
-        <option value="reels">🎬 Reels</option>
-        <option value="masterclass">🎓 Курс</option>
-        <option value="salespage">📄 Лендинг</option>
-        <option value="traffic">🚀 Трафик</option>
+        <option value="">Arsenal</option>
+        <option value="reels">Reels</option>
+        <option value="masterclass">Курс</option>
+        <option value="salespage">Лендинг</option>
+        <option value="traffic">Трафик</option>
       </select>
 
       <button class="agent-btn" data-agent="wordpress">WP</button>
       <button class="agent-btn" data-agent="seo">SEO</button>
-      <button class="agent-btn" data-agent="content">📝</button>
-      <button class="agent-btn brainstorm-btn" id="brainstormBtn">🧠</button>
+      <button class="agent-btn" data-agent="content">Контент</button>
+      <button class="agent-btn brainstorm-btn" id="brainstormBtn">Мозгоштурм</button>
 
       <span id="currentAgentLabel" class="current-agent-label"></span>
     </div>
@@ -387,8 +387,8 @@
     </div>
 
     <div class="input-area">
-      <input type="text" id="messageInput" placeholder="Сообщение..." autocomplete="off">
-      <button id="sendBtn">➤</button>
+      <input type="text" id="messageInput" placeholder="Введите сообщение..." autocomplete="off">
+      <button id="sendBtn">Отправить</button>
     </div>
   </div>
 
@@ -930,9 +930,9 @@
 
       if (brainstormMode) {
         currentAgent = 'brainstorm';
-        currentAgentLabel.textContent = '🧠 Мозгоштурм';
+        currentAgentLabel.textContent = 'Мозгоштурм';
         currentAgentLabel.style.display = 'inline-block';
-        addMessage('Режим мозгоштурма активирован! Все агенты обсудят твой вопрос вместе.', 'assistant');
+        addMessage('Режим мозгоштурма активирован! Все агенты обсудят вопрос вместе.', 'assistant');
       } else {
         currentAgent = 'general';
         document.querySelector('[data-agent="general"]').classList.add('active');
