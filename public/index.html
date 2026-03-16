@@ -604,9 +604,9 @@
     let youtubeAnalytics = null;
     let pendingImage = null;
 
-    // API URL - VPS (без таймаута) или Netlify (fallback)
-    const API_URL = 'http://89.167.8.169/api/chat';
-    // const API_URL = API_URL;  // Netlify fallback
+    // API URL - VPS с SSL (без таймаута!)
+    const API_URL = 'https://api.tgcombain.org.ua/api/chat';
+    // const API_URL = '/.netlify/functions/chat';  // Netlify fallback
 
     // Unique session ID for memory
     let sessionId = localStorage.getItem('neurohub_session') || crypto.randomUUID();
