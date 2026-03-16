@@ -604,6 +604,10 @@
     let youtubeAnalytics = null;
     let pendingImage = null;
 
+    // API URL - VPS (без таймаута) или Netlify (fallback)
+    const API_URL = 'http://89.167.8.169/api/chat';
+    // const API_URL = API_URL;  // Netlify fallback
+
     // Unique session ID for memory
     let sessionId = localStorage.getItem('neurohub_session') || crypto.randomUUID();
     localStorage.setItem('neurohub_session', sessionId);
@@ -1684,7 +1688,7 @@ Telegram: [ссылка]
 
       try {
         console.log('Sending request to /.netlify/functions/chat');
-        const response = await fetch('/.netlify/functions/chat', {
+        const response = await fetch(API_URL, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1828,7 +1832,7 @@ Telegram: [ссылка]
       chatContainer.scrollTop = chatContainer.scrollHeight;
 
       try {
-        const response = await fetch('/.netlify/functions/chat', {
+        const response = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
