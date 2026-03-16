@@ -522,10 +522,68 @@
       background: var(--accent);
       color: #000;
     }
+
+    /* Login screen */
+    .login-screen {
+      position: fixed;
+      inset: 0;
+      background: var(--bg-primary);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    .login-screen.hidden { display: none; }
+    .login-logo {
+      font-size: 2rem;
+      font-weight: 600;
+      margin-bottom: 2rem;
+      background: var(--gradient-gold);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .pin-input {
+      display: flex;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    .pin-input input {
+      width: 50px;
+      height: 60px;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      color: var(--text-primary);
+      font-size: 1.5rem;
+      text-align: center;
+      outline: none;
+    }
+    .pin-input input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-glow);
+    }
+    .login-error {
+      color: var(--danger);
+      font-size: 0.875rem;
+      height: 1.5rem;
+    }
   </style>
 </head>
 <body>
-  <div class="app-container">
+  <!-- Login Screen -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-logo">NeuroHub</div>
+    <div class="pin-input">
+      <input type="tel" maxlength="1" autocomplete="off">
+      <input type="tel" maxlength="1" autocomplete="off">
+      <input type="tel" maxlength="1" autocomplete="off">
+      <input type="tel" maxlength="1" autocomplete="off">
+    </div>
+    <div class="login-error" id="loginError"></div>
+  </div>
+
+  <div class="app-container" id="appContainer" style="display:none">
     <header>
       <h1>NeuroHub</h1>
     </header>
@@ -594,6 +652,56 @@
   </div>
 
   <script>
+    // PIN Login
+    const CORRECT_PIN = '9157';
+    const loginScreen = document.getElementById('loginScreen');
+    const appContainer = document.getElementById('appContainer');
+    const loginError = document.getElementById('loginError');
+    const pinInputs = document.querySelectorAll('.pin-input input');
+
+    // Check if already logged in
+    if (localStorage.getItem('neurohub_auth') === 'true') {
+      loginScreen.classList.add('hidden');
+      appContainer.style.display = 'flex';
+    }
+
+    // PIN input handling
+    pinInputs.forEach((input, index) => {
+      input.addEventListener('input', (e) => {
+        const value = e.target.value;
+        if (value && index < pinInputs.length - 1) {
+          pinInputs[index + 1].focus();
+        }
+        checkPin();
+      });
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace' && !e.target.value && index > 0) {
+          pinInputs[index - 1].focus();
+        }
+      });
+    });
+
+    function checkPin() {
+      const pin = Array.from(pinInputs).map(i => i.value).join('');
+      if (pin.length === 4) {
+        if (pin === CORRECT_PIN) {
+          localStorage.setItem('neurohub_auth', 'true');
+          loginScreen.classList.add('hidden');
+          appContainer.style.display = 'flex';
+        } else {
+          loginError.textContent = 'Неверный PIN';
+          pinInputs.forEach(i => i.value = '');
+          pinInputs[0].focus();
+          setTimeout(() => loginError.textContent = '', 2000);
+        }
+      }
+    }
+
+    // Focus first input
+    if (!loginScreen.classList.contains('hidden')) {
+      pinInputs[0].focus();
+    }
+
     const chatContainer = document.getElementById('chatContainer');
     const messageInput = document.getElementById('messageInput');
     const sendBtn = document.getElementById('sendBtn');
