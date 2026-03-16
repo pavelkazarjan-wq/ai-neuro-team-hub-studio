@@ -5,3 +5,7 @@
 [functions]
   node_bundler = "esbuild"
   external_node_modules = ["openai"]
+
+# Увеличиваем таймаут до максимума (26 сек на платном плане)
+[functions."chat"]
+  timeout = 26
